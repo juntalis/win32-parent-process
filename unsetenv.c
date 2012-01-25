@@ -33,13 +33,17 @@ int main(int argc, char* argv[])
 	
 	// Get the address of the main DLL
 	msvcrt = LoadLibraryA("msvcrt.dll");
+	if(!msvcrt) {
+		printf("Could not load MSVCRT.dll\n");
+		return 1;
+	}
 	
 	// Get our functions
 	rputenv = GetProcAddress(msvcrt, "_putenv");
 	
 	if (!GetParentProcessInfo( &pi )) {
 		printf("Could not get parent process.");
-		return 1;
+		goto cleanup;
 	}
 	
 	hProcess = OpenProcess(
@@ -113,5 +117,8 @@ cleanup:
 	
 	if ( hProcess != NULL) 
 		CloseHandle(hProcess);
+	
+	if ( msvcrt != NULL)
+		FreeLibrary(msvcrt);
 	return result;
 }

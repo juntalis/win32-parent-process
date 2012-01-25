@@ -32,13 +32,16 @@ int main(int argc, char* argv[])
 	
 	// Get the address of the main DLL
 	kernel32 = LoadLibraryA("kernel32.dll");
+	if(!kernel32) {
+		printf("Could not load Kernel32.dll\n");
+		return 1;
+	}
 	
 	// Get our functions
 	rchdir = GetProcAddress(kernel32, "SetCurrentDirectoryA");
-	
 	if (!GetParentProcessInfo( &pi )) {
 		printf("Could not get parent process.");
-		return 1;
+		goto cleanup;
 	}
 	
 	hProcess = OpenProcess(
@@ -99,5 +102,8 @@ cleanup:
 	
 	if ( hProcess != NULL) 
 		CloseHandle(hProcess);
+	
+	if ( kernel32 != NULL)
+		FreeLibrary(msvcrt);
 	return result;
 }
